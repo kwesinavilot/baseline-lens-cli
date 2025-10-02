@@ -3,8 +3,8 @@ import * as path from 'path';
 import * as glob from 'glob';
 import { DetectedFeature, BaselineStatus, WebFeatureDetails, AnalysisError } from './types';
 import { CompatibilityDataService } from './services/compatibilityService';
-import { CLICSSAnalyzer, CLIJavaScriptAnalyzer, CLIHTMLAnalyzer } from './cliAnalyzers';
-import { CLIConfig, CLIAnalysisOptions } from './cliConfig';
+import { CLICSSAnalyzer, CLIJavaScriptAnalyzer, CLIHTMLAnalyzer } from './analyzers';
+import { CLIConfig, CLIAnalysisOptions } from './config';
 
 export interface CLIAnalysisResult {
     totalFiles: number;

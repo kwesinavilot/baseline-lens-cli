@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { CLIConfig } from './cliConfig';
+import { CLIConfig } from './config';
 
 export interface CIGenerationOptions {
     failOn: string;

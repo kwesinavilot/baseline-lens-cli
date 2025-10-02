@@ -1,6 +1,17 @@
 # Baseline Lens CLI
 
-CLI tool for web feature compatibility analysis using Baseline data.
+[![npm version](https://badge.fury.io/js/baseline-lens-cli.svg)](https://badge.fury.io/js/baseline-lens-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+CLI tool for web feature compatibility analysis using Baseline data. Analyze your web projects for browser compatibility issues and get actionable insights.
+
+## Features
+
+- 🔍 **Real-time Analysis** - Detect modern web features in CSS, JavaScript, and HTML
+- 📊 **Comprehensive Reports** - Generate detailed compatibility reports in JSON, Markdown, or JUnit formats
+- 🚨 **CI/CD Integration** - Fail builds on compatibility issues with configurable thresholds
+- 🌐 **Baseline Data** - Uses official web-features database with 1000+ features
+- ⚡ **Fast & Lightweight** - Analyze entire projects in seconds
 
 ## Installation
 
@@ -47,7 +58,7 @@ baseline-lens-cli list-features --type css --status newly_available
 
 ## Configuration
 
-Create `.baseline-lens.json`:
+Create `.baseline-lens.json` in your project root:
 
 ```json
 {
@@ -57,7 +68,31 @@ Create `.baseline-lens.json`:
     "javascript": true,
     "html": true
   },
-  "excludePatterns": ["**/node_modules/**"],
-  "failOn": "high"
+  "excludePatterns": ["**/node_modules/**", "**/dist/**"],
+  "failOn": "high",
+  "outputFormat": "json"
 }
 ```
+
+## Example Output
+
+```bash
+$ baseline-lens-cli analyze --path ./src
+
+🔍 Starting Baseline Lens analysis...
+Analyzing 25 files... (100%)
+
+✅ Analysis completed successfully
+📊 Found 12 web features across 25 files
+   • 8 widely available
+   • 3 newly available  
+   • 1 limited availability
+```
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## License
+
+MIT © [Kwesi Navilot](https://github.com/kwesinavilot)

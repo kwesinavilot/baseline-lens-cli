@@ -1,13 +1,13 @@
 import * as bcd from '@mdn/browser-compat-data';
-import { WebFeatureDetails, BaselineStatus, DetectedFeature } from '../src/types';
-import { CLIErrorHandler, ErrorType } from './cliErrorHandler';
+import { WebFeatureDetails, BaselineStatus, DetectedFeature } from './types';
+import { CLIErrorHandler, ErrorType } from './errorHandler';
 
 export class CLICompatibilityService {
     private errorHandler: CLIErrorHandler;
     private initialized = false;
 
     constructor() {
-        this.errorHandler = CLIErrorHandler.getInstance();
+        this.errorHandler = new CLIErrorHandler();
     }
 
     async initialize(): Promise<void> {
@@ -19,9 +19,7 @@ export class CLICompatibilityService {
             // BCD data is already loaded when imported
             this.initialized = true;
         } catch (error) {
-            this.errorHandler.handleDataLoadingError(error, {
-                operation: 'initialize'
-            });
+            CLIErrorHandler.handleError(error, 'initialize');
             throw error;
         }
     }
@@ -58,10 +56,7 @@ export class CLICompatibilityService {
 
             return null;
         } catch (error) {
-            this.errorHandler.handleDataLoadingError(error, {
-                operation: 'getFeatureDetails',
-                additionalInfo: { featureId }
-            });
+            CLIErrorHandler.handleError(error, 'getFeatureDetails');
             return null;
         }
     }
@@ -78,9 +73,7 @@ export class CLICompatibilityService {
             this.extractFeatures(bcd, '', features);
             return features;
         } catch (error) {
-            this.errorHandler.handleDataLoadingError(error, {
-                operation: 'getAllFeatures'
-            });
+            CLIErrorHandler.handleError(error, 'getAllFeatures');
             return [];
         }
     }
@@ -193,8 +186,7 @@ export class CLICompatibilityService {
             name: property,
             type: 'css',
             baselineStatus: details.baseline,
-            context: property,
-            severity: 'warning'
+            context: property
         };
     }
 
@@ -214,8 +206,7 @@ export class CLICompatibilityService {
             name: feature,
             type: 'javascript',
             baselineStatus: details.baseline,
-            context: feature,
-            severity: 'warning'
+            context: feature
         };
     }
 
@@ -238,8 +229,7 @@ export class CLICompatibilityService {
             name: attribute ? `${element}[${attribute}]` : element,
             type: 'html',
             baselineStatus: details.baseline,
-            context: attribute ? `${element}[${attribute}]` : element,
-            severity: 'warning'
+            context: attribute ? `${element}[${attribute}]` : element
         };
     }
 }

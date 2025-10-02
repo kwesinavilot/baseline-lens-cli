@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CLIAnalysisResult } from './cliAnalyzer';
-import { CLIConfig } from './cliConfig';
-import { DetectedFeature, WebFeatureDetails, CompatibilityReport, ReportSummary, FeatureUsage, FileLocation } from '../src/types';
+import { CLIAnalysisResult } from './analyzer';
+import { CLIConfig } from './config';
+import { DetectedFeature, WebFeatureDetails, CompatibilityReport, ReportSummary, FeatureUsage, FileLocation } from './types';
 
 export class CLIReporter {
     private config: CLIConfig;
@@ -127,7 +127,7 @@ export class CLIReporter {
             
             if (feature.filePath) {
                 usage.locations.push({
-                    filePath: feature.filePath,
+                    file: feature.filePath || '',
                     line: feature.range?.start.line || 0,
                     column: feature.range?.start.character || 0,
                     context: feature.context
@@ -138,8 +138,8 @@ export class CLIReporter {
         return Array.from(featureMap.values()).sort((a, b) => {
             // Sort by risk level (high first), then by count (descending)
             const riskOrder = { high: 3, medium: 2, low: 1 };
-            const riskDiff = riskOrder[b.riskLevel] - riskOrder[a.riskLevel];
-            return riskDiff !== 0 ? riskDiff : b.usageCount - a.usageCount;
+            const riskDiff = riskOrder[b.riskLevel as keyof typeof riskOrder] - riskOrder[a.riskLevel as keyof typeof riskOrder];
+            return riskDiff !== 0 ? riskDiff : (b.usageCount || 0) - (a.usageCount || 0);
         });
     }
 
@@ -212,7 +212,7 @@ export class CLIReporter {
         
         lines.push('# Baseline Lens Compatibility Report');
         lines.push('');
-        lines.push(`Generated: ${report.generatedAt.toISOString()}`);
+        lines.push(`Generated: ${report.generatedAt?.toISOString() || new Date().toISOString()}`);
         lines.push('');
 
         // Summary section
@@ -226,16 +226,16 @@ export class CLIReporter {
         // Risk distribution
         lines.push('### Risk Distribution');
         lines.push('');
-        lines.push(`- 🚫 **High Risk**: ${report.summary.riskDistribution.high} features`);
-        lines.push(`- ⚠️  **Medium Risk**: ${report.summary.riskDistribution.medium} features`);
-        lines.push(`- ✅ **Low Risk**: ${report.summary.riskDistribution.low} features`);
+        lines.push(`- 🚫 **High Risk**: ${report.summary.riskDistribution?.high || 0} features`);
+        lines.push(`- ⚠️  **Medium Risk**: ${report.summary.riskDistribution?.medium || 0} features`);
+        lines.push(`- ✅ **Low Risk**: ${report.summary.riskDistribution?.low || 0} features`);
         lines.push('');
 
         // File type breakdown
-        if (Object.keys(report.summary.fileTypeBreakdown).length > 0) {
+        if (report.summary.fileTypeBreakdown && Object.keys(report.summary.fileTypeBreakdown).length > 0) {
             lines.push('### File Type Breakdown');
             lines.push('');
-            for (const [type, count] of Object.entries(report.summary.fileTypeBreakdown)) {
+            for (const [type, count] of Object.entries(report.summary.fileTypeBreakdown || {})) {
                 lines.push(`- **${type.toUpperCase()}**: ${count} features`);
             }
             lines.push('');
@@ -260,7 +260,7 @@ export class CLIReporter {
                     lines.push('**Locations:**');
                     for (const location of feature.locations.slice(0, 10)) { // Limit to first 10
                         const lineInfo = location.line !== undefined ? `:${location.line + 1}` : '';
-                        lines.push(`- \`${location.filePath}${lineInfo}\``);
+                        lines.push(`- \`${location.file}${lineInfo}\``);
                     }
                     if (feature.locations.length > 10) {
                         lines.push(`- ... and ${feature.locations.length - 10} more locations`);
@@ -271,7 +271,7 @@ export class CLIReporter {
         }
 
         // Recommendations section
-        if (report.recommendations.length > 0) {
+        if (report.recommendations && report.recommendations.length > 0) {
             lines.push('## Recommendations');
             lines.push('');
             for (const recommendation of report.recommendations) {
@@ -297,7 +297,7 @@ export class CLIReporter {
             
             if (feature.riskLevel === 'high') {
                 failures++;
-                const locations = feature.locations.map(loc => 
+                const locations = feature.locations?.map((loc: any) => 
                     `${loc.filePath}:${loc.line + 1}`
                 ).join(', ');
                 
@@ -321,7 +321,7 @@ Locations: ${locations}
         }
 
         const totalTests = report.features.length;
-        const timestamp = report.generatedAt.toISOString();
+        const timestamp = report.generatedAt?.toISOString() || new Date().toISOString();
 
         return `<?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="BaselineLens.CompatibilityCheck" 

@@ -1,5 +1,5 @@
-import { DetectedFeature } from '../src/types';
-import { CLICompatibilityService } from './cliCompatibilityService';
+import { DetectedFeature } from './types';
+import { CompatibilityDataService } from './services/compatibilityService';
 
 // Mock VS Code types for CLI usage
 interface MockRange {
@@ -15,7 +15,7 @@ interface MockDocument {
 }
 
 export class CLICSSAnalyzer {
-    constructor(private compatibilityService: CLICompatibilityService) {}
+    constructor(private compatibilityService: CompatibilityDataService) {}
 
     async analyze(content: string, document: MockDocument): Promise<DetectedFeature[]> {
         const features: DetectedFeature[] = [];
@@ -35,7 +35,16 @@ export class CLICSSAnalyzer {
                     continue;
                 }
                 
-                const featureDetails = await this.compatibilityService.lookupCSSFeature(property);
+                const bcdKey = this.compatibilityService.mapCSSPropertyToBCD(property);
+                const baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                if (!baselineStatus) continue;
+                const featureDetails = {
+                    name: property,
+                    type: 'css' as const,
+                    line,
+                    column: character,
+                    baselineStatus
+                };
                 if (featureDetails) {
                     features.push({
                         ...featureDetails,
@@ -56,7 +65,7 @@ export class CLICSSAnalyzer {
 }
 
 export class CLIJavaScriptAnalyzer {
-    constructor(private compatibilityService: CLICompatibilityService) {}
+    constructor(private compatibilityService: CompatibilityDataService) {}
 
     async analyze(content: string, document: MockDocument): Promise<DetectedFeature[]> {
         const features: DetectedFeature[] = [];
@@ -71,7 +80,16 @@ export class CLIJavaScriptAnalyzer {
                 const line = content.substring(0, match.index).split('\n').length - 1;
                 const character = match.index - content.lastIndexOf('\n', match.index) - 1;
                 
-                const featureDetails = await this.compatibilityService.lookupJSFeature(api);
+                const bcdKey = this.compatibilityService.mapJSAPIToBCD(api);
+                const baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                if (!baselineStatus) continue;
+                const featureDetails = {
+                    name: api,
+                    type: 'javascript' as const,
+                    line,
+                    column: character,
+                    baselineStatus
+                };
                 if (featureDetails) {
                     features.push({
                         ...featureDetails,
@@ -92,7 +110,7 @@ export class CLIJavaScriptAnalyzer {
 }
 
 export class CLIHTMLAnalyzer {
-    constructor(private compatibilityService: CLICompatibilityService) {}
+    constructor(private compatibilityService: CompatibilityDataService) {}
 
     async analyze(content: string, document: MockDocument): Promise<DetectedFeature[]> {
         const features: DetectedFeature[] = [];
@@ -112,7 +130,16 @@ export class CLIHTMLAnalyzer {
                     continue;
                 }
                 
-                const featureDetails = await this.compatibilityService.lookupHTMLFeature(element);
+                const bcdKey = this.compatibilityService.mapHTMLElementToBCD(element);
+                const baselineStatus = this.compatibilityService.getBCDStatus(bcdKey);
+                if (!baselineStatus) continue;
+                const featureDetails = {
+                    name: element,
+                    type: 'html' as const,
+                    line,
+                    column: character,
+                    baselineStatus
+                };
                 if (featureDetails) {
                     features.push({
                         ...featureDetails,

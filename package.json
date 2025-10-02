@@ -1,19 +1,7 @@
 {
   "name": "baseline-lens-cli",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "CLI tool for web feature compatibility analysis using Baseline data",
-  "main": "dist/index.js",
-  "bin": {
-    "baseline-lens-cli": "./bin/baseline-lens-cli.js"
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "jest --config jest.config.js",
-    "test:watch": "jest --config jest.config.js --watch",
-    "prepublishOnly": "npm run build",
-    "start": "node dist/index.js",
-    "dev": "tsc --watch"
-  },
   "keywords": [
     "web-compatibility",
     "baseline",
@@ -28,18 +16,35 @@
     "compatibility",
     "compatibility-checker"
   ],
-  "author": "Kwesi Navilot",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kwesinavilot/baseline-lens-cli.git"
-  },
+  "homepage": "https://github.com/kwesinavilot/baseline-lens-cli#readme",
   "bugs": {
     "url": "https://github.com/kwesinavilot/baseline-lens-cli/issues"
   },
-  "homepage": "https://github.com/kwesinavilot/baseline-lens-cli#readme",
-  "engines": {
-    "node": ">=16.0.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kwesinavilot/baseline-lens-cli.git"
+  },
+  "license": "MIT",
+  "author": "Kwesi Navilot",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "baseline-lens-cli": "bin/baseline-lens-cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    "bin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest --config jest.config.js",
+    "test:watch": "jest --config jest.config.js --watch",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
   },
   "dependencies": {
     "@mdn/browser-compat-data": "^5.3.0",
@@ -60,10 +65,7 @@
     "ts-node": "^10.9.0",
     "typescript": "^5.0.0"
   },
-  "files": [
-    "dist/**/*",
-    "bin/",
-    "README.md",
-    "LICENSE"
-  ]
+  "engines": {
+    "node": ">=16.0.0"
+  }
 }
