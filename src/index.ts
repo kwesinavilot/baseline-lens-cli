@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 const program = new Command();
 import { CLIAnalyzer } from './analyzer';
-import { CIConfigGenerator } from './configGenerator';
+import { CIConfigGenerator } from './ciConfigGenerator';
 import { CLIReporter } from './reporter';
 import { CLIConfig } from './config';
 import * as fs from 'fs';

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-01-03
+
+### Improved
+- CI/CD configuration inheritance now detects and uses existing runner OS, Node.js versions, and Docker images
+- Smarter platform detection prevents hardcoded values like `ubuntu-latest` when other runners are in use
+- Better compatibility with custom CI/CD environments and self-hosted runners
+
 ## [0.4.0] - 2025-01-03
 
 ### Added
@@ -57,7 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - postcss ^8.4.0 for CSS parsing
 - acorn ^8.10.0 for JavaScript AST parsing
 
-[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/kwesinavilot/baseline-lens-cli/releases/tag/v0.3.0
 [0.2.0]: https://github.com/kwesinavilot/baseline-lens-cli/releases/tag/v0.2.0

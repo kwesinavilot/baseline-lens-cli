@@ -83,14 +83,17 @@ export class CIConfigGenerator {
      * Append to existing GitHub Actions workflow
      */
     private appendToGitHubActions(existingContent: string, options: CIGenerationOptions): string {
+        const runnerOs = this.extractRunnerOS(existingContent) || 'ubuntu-latest';
+        const nodeVersion = this.extractNodeVersion(existingContent) || '18';
+        
         const baselineJob = `
   baseline-lens:
-    runs-on: ubuntu-latest
+    runs-on: ${runnerOs}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '${nodeVersion}'
     - run: npm install -g baseline-lens-cli
     - run: |
         baseline-lens-cli analyze \\
@@ -114,10 +117,12 @@ export class CIConfigGenerator {
      * Append to existing GitLab CI configuration
      */
     private appendToGitLabCI(existingContent: string, options: CIGenerationOptions): string {
+        const dockerImage = this.extractDockerImage(existingContent) || 'node:18';
+        
         const baselineJob = `
 baseline-lens:
   stage: test
-  image: node:18
+  image: ${dockerImage}
   script:
     - npm install -g baseline-lens-cli
     - baseline-lens-cli analyze --fail-on ${options.failOn} --threshold ${options.threshold} --format junit --output baseline-report.xml
@@ -175,6 +180,30 @@ baseline-lens:
             return existingContent.replace(/stages\s*\{/, `stages {${baselineStage}`);
         }
         return existingContent + baselineStage;
+    }
+
+    /**
+     * Extract runner OS from existing GitHub Actions workflow
+     */
+    private extractRunnerOS(content: string): string | null {
+        const match = content.match(/runs-on:\s*([^\n]+)/);
+        return match ? match[1].trim() : null;
+    }
+
+    /**
+     * Extract Node.js version from existing workflow
+     */
+    private extractNodeVersion(content: string): string | null {
+        const match = content.match(/node-version:\s*['"]?([^'"\n]+)['"]?/);
+        return match ? match[1].trim() : null;
+    }
+
+    /**
+     * Extract Docker image from existing GitLab CI
+     */
+    private extractDockerImage(content: string): string | null {
+        const match = content.match(/image:\s*([^\n]+)/);
+        return match ? match[1].trim() : null;
     }
 
     /**

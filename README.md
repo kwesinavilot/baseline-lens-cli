@@ -32,8 +32,13 @@ baseline-lens-cli analyze --path ./src --threshold 95 --fail-on medium
 ### Generate CI/CD Configuration
 
 ```bash
+# Append to existing CI/CD files (default)
 baseline-lens-cli init-ci --type github
-baseline-lens-cli init-ci --type gitlab --output .gitlab-ci
+baseline-lens-cli init-ci --type gitlab
+
+# Generate new files (overwrite existing)
+baseline-lens-cli init-ci --type github --overwrite
+baseline-lens-cli init-ci --type azure --output custom-dir
 ```
 
 ### Validate Configuration
