@@ -198,6 +198,43 @@ program
         }
     });
 
+// Show presets command
+program
+    .command('list-presets')
+    .description('List available framework presets')
+    .option('-f, --format <format>', 'Output format (json|table)', 'table')
+    .action(async (options: any) => {
+        try {
+            const { ConfigManager } = await import('./configManager');
+            const configManager = new ConfigManager();
+            
+            const presets = {
+                react: configManager.getFrameworkPreset('react'),
+                vue: configManager.getFrameworkPreset('vue'),
+                angular: configManager.getFrameworkPreset('angular'),
+                svelte: configManager.getFrameworkPreset('svelte')
+            };
+            
+            if (options.format === 'json') {
+                console.log(JSON.stringify(presets, null, 2));
+            } else {
+                console.log('Available Framework Presets:');
+                console.log('============================');
+                
+                Object.entries(presets).forEach(([name, preset]) => {
+                    console.log(`\n🎆 ${name.toUpperCase()}`);
+                    console.log(`  Support Threshold: ${preset.supportThreshold}%`);
+                    console.log(`  Browser Matrix: ${preset.customBrowserMatrix?.join(', ') || 'Default'}`);
+                    console.log(`  Include Patterns: ${preset.includePatterns?.length || 0} patterns`);
+                });
+            }
+            
+        } catch (error) {
+            console.error('❌ Failed to load presets:', error instanceof Error ? error.message : String(error));
+            process.exit(1);
+        }
+    });
+
 // Show current configuration command
 program
     .command('show-config')
@@ -267,6 +304,54 @@ program
 
         } catch (error) {
             console.error('❌ Feature lookup failed:', error instanceof Error ? error.message : String(error));
+            process.exit(1);
+        }
+    });
+
+// Auto-config generation command
+program
+    .command('init-config')
+    .description('Generate optimal configuration for your project')
+    .option('-p, --path <path>', 'Project path to analyze', process.cwd())
+    .option('--preset <preset>', 'Framework preset (react|vue|angular|svelte)')
+    .option('--env <env>', 'Environment (development|staging|production)', 'development')
+    .option('-o, --output <output>', 'Output file path', '.baseline-lens.json')
+    .option('--dry-run', 'Show configuration without writing file')
+    .action(async (options: any) => {
+        try {
+            const { ConfigManager } = await import('./configManager');
+            const configManager = new ConfigManager();
+            
+            console.log('🔍 Analyzing project structure...');
+            const projectInfo = await configManager.detectProject(options.path);
+            
+            console.log(`📦 Detected: ${projectInfo.framework || 'vanilla'} project`);
+            if (projectInfo.hasTypeScript) console.log('✅ TypeScript detected');
+            if (projectInfo.hasSass) console.log('✅ Sass detected');
+            if (projectInfo.buildTool) console.log(`🔧 Build tool: ${projectInfo.buildTool}`);
+            
+            // Override framework if preset specified
+            if (options.preset) {
+                projectInfo.framework = options.preset;
+            }
+            
+            const config = configManager.generateConfig(projectInfo);
+            const envConfigs = configManager.generateEnvironmentConfigs(config);
+            
+            // Use environment-specific config
+            const finalConfig = { ...config, ...envConfigs[options.env as keyof typeof envConfigs] };
+            
+            if (options.dryRun) {
+                console.log('\n📋 Generated configuration:');
+                console.log(JSON.stringify(finalConfig, null, 2));
+            } else {
+                await fs.promises.writeFile(options.output, JSON.stringify(finalConfig, null, 2));
+                console.log(`✅ Configuration written to: ${options.output}`);
+                console.log(`🌍 Environment: ${options.env}`);
+            }
+            
+        } catch (error) {
+            console.error('❌ Configuration generation failed:', error instanceof Error ? error.message : String(error));
             process.exit(1);
         }
     });

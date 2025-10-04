@@ -29,6 +29,22 @@ baseline-lens-cli analyze --path ./src --output report.json --format json
 baseline-lens-cli analyze --path ./src --threshold 95 --fail-on medium
 ```
 
+### Generate Smart Configuration
+
+```bash
+# Auto-detect project and generate config
+baseline-lens-cli init-config
+
+# Use specific framework preset
+baseline-lens-cli init-config --preset react --env production
+
+# Preview configuration without writing
+baseline-lens-cli init-config --dry-run
+
+# List available presets
+baseline-lens-cli list-presets
+```
+
 ### Generate CI/CD Configuration
 
 ```bash
