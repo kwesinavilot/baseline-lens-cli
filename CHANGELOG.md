@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-01-03
+
+### Added
+- Smart CI/CD configuration detection and appending
+- `--overwrite` flag for init-ci command to generate new files instead of appending
+- Automatic detection of existing GitHub Actions, GitLab CI, Azure Pipelines, and Jenkins files
+- Intelligent insertion of Baseline Lens jobs into existing CI/CD workflows
+
+### Changed
+- `init-ci` command now appends to existing CI/CD files by default
+- Improved CI/CD configuration generation with better integration patterns
+
 ## [0.3.0] - 2025-10-02
 
 ### Fixed
@@ -45,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - postcss ^8.4.0 for CSS parsing
 - acorn ^8.10.0 for JavaScript AST parsing
 
-[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/kwesinavilot/baseline-lens-cli/releases/tag/v0.3.0
 [0.2.0]: https://github.com/kwesinavilot/baseline-lens-cli/releases/tag/v0.2.0

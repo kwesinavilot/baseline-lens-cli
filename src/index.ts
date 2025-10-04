@@ -113,15 +113,17 @@ program
     .option('-c, --config <config>', 'Configuration file path')
     .option('--fail-on <level>', 'Fail build on risk level (high|medium|low)', 'high')
     .option('--threshold <threshold>', 'Support threshold percentage', '90')
+    .option('--overwrite', 'Overwrite existing CI/CD files instead of appending')
     .action(async (options: any) => {
         try {
             const config = await CLIConfig.load(options.config, options);
             const generator = new CIConfigGenerator(config);
 
-            const configContent = generator.generateConfig(options.type, {
+            const result = await generator.generateConfig(options.type, {
                 failOn: options.failOn,
                 threshold: options.threshold,
-                outputPath: options.output
+                outputPath: options.output,
+                overwrite: options.overwrite
             });
 
             const outputFile = generator.getConfigFileName(options.type, options.output);
@@ -132,15 +134,22 @@ program
                 fs.mkdirSync(outputDir, { recursive: true });
             }
 
-            fs.writeFileSync(outputFile, configContent);
-            console.log(`✅ CI/CD configuration generated: ${outputFile}`);
+            fs.writeFileSync(outputFile, result.content);
+            
+            if (result.isAppended) {
+                console.log(`✅ Baseline Lens configuration appended to existing file: ${outputFile}`);
+            } else {
+                console.log(`✅ New CI/CD configuration generated: ${outputFile}`);
+            }
 
-            // Generate additional files if needed
-            const additionalFiles = generator.getAdditionalFiles(options.type);
-            for (const [fileName, content] of additionalFiles) {
-                const filePath = path.join(outputDir, fileName);
-                fs.writeFileSync(filePath, content);
-                console.log(`📄 Additional file created: ${filePath}`);
+            // Generate additional files if needed (only for new configs)
+            if (!result.isAppended) {
+                const additionalFiles = generator.getAdditionalFiles(options.type);
+                for (const [fileName, content] of additionalFiles) {
+                    const filePath = path.join(outputDir, fileName);
+                    fs.writeFileSync(filePath, content);
+                    console.log(`📄 Additional file created: ${filePath}`);
+                }
             }
 
         } catch (error) {

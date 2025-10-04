@@ -1,10 +1,12 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import { CLIConfig } from './config';
 
 export interface CIGenerationOptions {
     failOn: string;
     threshold: string;
     outputPath: string;
+    overwrite?: boolean;
 }
 
 export class CIConfigGenerator {
@@ -17,7 +19,23 @@ export class CIConfigGenerator {
     /**
      * Generate CI/CD configuration for the specified platform
      */
-    generateConfig(platform: string, options: CIGenerationOptions): string {
+    async generateConfig(platform: string, options: CIGenerationOptions): Promise<{ content: string; isAppended: boolean }> {
+        const configPath = this.getConfigFileName(platform, options.outputPath);
+        const existingContent = await this.getExistingConfig(configPath);
+        
+        if (existingContent && !options.overwrite) {
+            const appendedContent = await this.appendToExistingConfig(platform, existingContent, options);
+            return { content: appendedContent, isAppended: true };
+        }
+        
+        const newContent = this.generateNewConfig(platform, options);
+        return { content: newContent, isAppended: false };
+    }
+
+    /**
+     * Generate new CI/CD configuration for the specified platform
+     */
+    private generateNewConfig(platform: string, options: CIGenerationOptions): string {
         switch (platform.toLowerCase()) {
             case 'github':
                 return this.generateGitHubActions(options);
@@ -30,6 +48,133 @@ export class CIConfigGenerator {
             default:
                 throw new Error(`Unsupported CI/CD platform: ${platform}`);
         }
+    }
+
+    /**
+     * Get existing configuration file content
+     */
+    private async getExistingConfig(configPath: string): Promise<string | null> {
+        try {
+            return await fs.promises.readFile(configPath, 'utf8');
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Append Baseline Lens job to existing CI/CD configuration
+     */
+    private async appendToExistingConfig(platform: string, existingContent: string, options: CIGenerationOptions): Promise<string> {
+        switch (platform.toLowerCase()) {
+            case 'github':
+                return this.appendToGitHubActions(existingContent, options);
+            case 'gitlab':
+                return this.appendToGitLabCI(existingContent, options);
+            case 'azure':
+                return this.appendToAzurePipelines(existingContent, options);
+            case 'jenkins':
+                return this.appendToJenkinsfile(existingContent, options);
+            default:
+                throw new Error(`Unsupported CI/CD platform: ${platform}`);
+        }
+    }
+
+    /**
+     * Append to existing GitHub Actions workflow
+     */
+    private appendToGitHubActions(existingContent: string, options: CIGenerationOptions): string {
+        const baselineJob = `
+  baseline-lens:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    - run: npm install -g baseline-lens-cli
+    - run: |
+        baseline-lens-cli analyze \\
+          --fail-on ${options.failOn} \\
+          --threshold ${options.threshold} \\
+          --format junit \\
+          --output baseline-report.xml
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: baseline-lens-report
+        path: baseline-report.xml`;
+
+        if (existingContent.includes('jobs:')) {
+            return existingContent.replace(/jobs:\s*\n/, `jobs:${baselineJob}\n`);
+        }
+        return existingContent + `\njobs:${baselineJob}`;
+    }
+
+    /**
+     * Append to existing GitLab CI configuration
+     */
+    private appendToGitLabCI(existingContent: string, options: CIGenerationOptions): string {
+        const baselineJob = `
+baseline-lens:
+  stage: test
+  image: node:18
+  script:
+    - npm install -g baseline-lens-cli
+    - baseline-lens-cli analyze --fail-on ${options.failOn} --threshold ${options.threshold} --format junit --output baseline-report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: baseline-report.xml`;
+
+        if (!existingContent.includes('stages:')) {
+            return `stages:\n  - test\n${existingContent}${baselineJob}`;
+        }
+        return existingContent + baselineJob;
+    }
+
+    /**
+     * Append to existing Azure Pipelines configuration
+     */
+    private appendToAzurePipelines(existingContent: string, options: CIGenerationOptions): string {
+        const baselineStep = `
+- script: |
+    npm install -g baseline-lens-cli
+    baseline-lens-cli analyze --fail-on ${options.failOn} --threshold ${options.threshold} --format junit --output baseline-report.xml
+  displayName: 'Baseline Lens Analysis'
+- task: PublishTestResults@2
+  condition: always()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'baseline-report.xml'
+    testRunTitle: 'Baseline Lens Results'`;
+
+        if (existingContent.includes('steps:')) {
+            return existingContent.replace(/steps:\s*\n/, `steps:\n${baselineStep}\n`);
+        }
+        return existingContent + `\nsteps:${baselineStep}`;
+    }
+
+    /**
+     * Append to existing Jenkinsfile
+     */
+    private appendToJenkinsfile(existingContent: string, options: CIGenerationOptions): string {
+        const baselineStage = `
+        stage('Baseline Lens') {
+            steps {
+                sh 'npm install -g baseline-lens-cli'
+                sh 'baseline-lens-cli analyze --fail-on ${options.failOn} --threshold ${options.threshold} --format junit --output baseline-report.xml'
+            }
+            post {
+                always {
+                    publishTestResults testResultsPattern: 'baseline-report.xml'
+                }
+            }
+        }`;
+
+        if (existingContent.includes('stages {')) {
+            return existingContent.replace(/stages\s*\{/, `stages {${baselineStage}`);
+        }
+        return existingContent + baselineStage;
     }
 
     /**
