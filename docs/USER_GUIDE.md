@@ -216,6 +216,60 @@ baseline-lens-cli list-features --status newly_available
 baseline-lens-cli list-features --format csv --limit 100
 ```
 
+### `init-hooks` - Git Hooks Setup
+
+Set up git hooks for automatic compatibility checking.
+
+```bash
+baseline-lens-cli init-hooks [options]
+```
+
+**Options:**
+- `--type <type>` - Hook type: `pre-commit`, `pre-push`, `commit-msg` (default: pre-commit)
+- `--fail-on <level>` - Fail build on risk level (default: high)
+- `--threshold <threshold>` - Support threshold percentage (default: 90)
+- `--changed-only` - Only analyze changed files (default: true)
+- `--remove` - Remove existing Baseline Lens hooks
+
+**Examples:**
+```bash
+# Set up pre-commit hook (most common)
+baseline-lens-cli init-hooks
+
+# Set up pre-push hook for broader checks
+baseline-lens-cli init-hooks --type pre-push
+
+# Custom threshold and failure level
+baseline-lens-cli init-hooks --fail-on medium --threshold 95
+
+# Remove all Baseline Lens hooks
+baseline-lens-cli init-hooks --remove
+```
+
+### `help` - Documentation & Examples
+
+Access comprehensive help and documentation.
+
+```bash
+baseline-lens-cli help [options]
+```
+
+**Options:**
+- `--guide` - Open full user guide with links to documentation
+- `--examples` - Show common usage examples
+
+**Examples:**
+```bash
+# Quick help with essential commands
+baseline-lens-cli help
+
+# Full user guide with documentation links
+baseline-lens-cli help --guide
+
+# Common usage examples
+baseline-lens-cli help --examples
+```
+
 ## Configuration
 
 ### Configuration File
@@ -454,6 +508,23 @@ EOF
 baseline-lens-cli analyze --config .baseline-lens.json
 ```
 
+### Git Hooks Integration
+
+```bash
+# Set up pre-commit hook for immediate feedback
+baseline-lens-cli init-hooks
+
+# Output:
+# ✅ Git pre-commit hook installed: .git/hooks/pre-commit
+# 🔧 Configuration: fail-on=high, threshold=90%
+# 💡 Tip: Use --type pre-push for less frequent but broader checks
+
+# Now every commit will check compatibility:
+# git commit -m "Add new feature"
+# 🔍 Running Baseline Lens compatibility check...
+# ✅ Compatibility check passed
+```
+
 ### CI/CD Pipeline Integration
 
 ```bash
@@ -513,6 +584,19 @@ baseline-lens-cli init-ci --type github --overwrite
 
 # Check existing file structure
 cat .github/workflows/ci.yml
+```
+
+**5. "Git hook not triggering"**
+```bash
+# Check if hook is executable
+ls -la .git/hooks/pre-commit
+
+# Reinstall hook
+baseline-lens-cli init-hooks --remove
+baseline-lens-cli init-hooks
+
+# Test hook manually
+.git/hooks/pre-commit
 ```
 
 ### Debug Mode

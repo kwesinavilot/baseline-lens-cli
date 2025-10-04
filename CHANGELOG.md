@@ -7,15 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.0] - 2025-01-03
+## [0.7.0] - 2025-10-04
 
 ### Added
-- Conditional execution: `--changed-only` flag to analyze only files changed in current branch/PR
-- Git integration for detecting changed files in CI/CD environments
-- Support for both staged/unstaged changes (local) and branch comparisons (CI)
-- Automatic CI environment detection for optimal file change detection
+- Git hooks integration with `init-hooks` command
+- Pre-commit hooks for compatibility checking on staged files
+- Pre-push hooks for broader compatibility validation
+- Commit-msg hooks to add compatibility info to commit messages
+- Smart hook management with append/remove capabilities
+- Automatic detection of existing git hooks and safe integration
+- `help` command with comprehensive documentation access
+- Interactive help system with examples and user guide links
+- Enhanced troubleshooting section for git hooks
 
-## [0.5.0] - 2025-01-03
+## [0.6.0] - 2025-10-04
 
 ### Added
 - Smart configuration management with auto-detection of project frameworks
@@ -26,14 +31,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic detection of TypeScript, Sass, and build tools
 - Framework-specific browser support matrices and file patterns
 
-## [0.4.1] - 2025-01-03
+## [0.6.0] - 2025-10-04
+
+### Added
+- Conditional execution: `--changed-only` flag to analyze only files changed in current branch/PR
+- Git integration for detecting changed files in CI/CD environments
+- Support for both staged/unstaged changes (local) and branch comparisons (CI)
+- Automatic CI environment detection for optimal file change detection
+
+## [0.5.0] - 2025-10-04
+
+### Added
+- Smart configuration management with auto-detection of project frameworks
+- `init-config` command to generate optimal settings based on project structure
+- Built-in presets for React, Vue, Angular, and Svelte projects
+- Environment-specific configurations (development, staging, production)
+- `list-presets` command to view available framework presets
+- Automatic detection of TypeScript, Sass, and build tools
+- Framework-specific browser support matrices and file patterns
+
+## [0.4.1] - 2025-10-03
 
 ### Improved
 - CI/CD configuration inheritance now detects and uses existing runner OS, Node.js versions, and Docker images
 - Smarter platform detection prevents hardcoded values like `ubuntu-latest` when other runners are in use
 - Better compatibility with custom CI/CD environments and self-hosted runners
 
-## [0.4.0] - 2025-01-03
+## [0.4.0] - 2025-10-03
 
 ### Added
 - Smart CI/CD configuration detection and appending
@@ -83,7 +107,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - postcss ^8.4.0 for CSS parsing
 - acorn ^8.10.0 for JavaScript AST parsing
 
-[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.0...v0.4.1

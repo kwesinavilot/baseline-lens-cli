@@ -7,6 +7,7 @@ export interface CIGenerationOptions {
     threshold: string;
     outputPath: string;
     overwrite?: boolean;
+    changedOnly?: boolean;
 }
 
 export class CIConfigGenerator {

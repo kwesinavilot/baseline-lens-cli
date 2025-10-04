@@ -385,6 +385,121 @@ program
         }
     });
 
+// Git hooks management command
+program
+    .command('init-hooks')
+    .description('Set up git hooks for compatibility checking')
+    .option('--type <type>', 'Hook type (pre-commit|pre-push|commit-msg)', 'pre-commit')
+    .option('--fail-on <level>', 'Fail build on risk level (high|medium|low)', 'high')
+    .option('--threshold <threshold>', 'Support threshold percentage', '90')
+    .option('--changed-only', 'Only analyze changed files', true)
+    .option('--remove', 'Remove existing Baseline Lens hooks')
+    .action(async (options: any) => {
+        try {
+            const { GitHooksGenerator } = await import('./gitHooksGenerator');
+            const generator = new GitHooksGenerator();
+            
+            if (options.remove) {
+                const removedHooks = await generator.removeHooks();
+                if (removedHooks.length > 0) {
+                    console.log(`✅ Removed Baseline Lens hooks: ${removedHooks.join(', ')}`);
+                } else {
+                    console.log('ℹ️  No Baseline Lens hooks found to remove');
+                }
+                return;
+            }
+            
+            const hookContent = generator.generateHook({
+                type: options.type,
+                failOn: options.failOn,
+                threshold: options.threshold,
+                changedOnly: options.changedOnly
+            });
+            
+            const hookPath = await generator.installHook(options.type, hookContent);
+            
+            console.log(`✅ Git ${options.type} hook installed: ${hookPath}`);
+            console.log(`🔧 Configuration: fail-on=${options.failOn}, threshold=${options.threshold}%`);
+            
+            if (options.type === 'pre-commit') {
+                console.log('💡 Tip: Use --type pre-push for less frequent but broader checks');
+            }
+            
+        } catch (error) {
+            console.error('❌ Git hook setup failed:', error instanceof Error ? error.message : String(error));
+            process.exit(1);
+        }
+    });
+
+// Help and documentation command
+program
+    .command('help')
+    .description('Show comprehensive help and user guide')
+    .option('--guide', 'Open full user guide')
+    .option('--examples', 'Show common usage examples')
+    .action(async (options: any) => {
+        if (options.guide) {
+            console.log('📚 Baseline Lens CLI - Complete User Guide');
+            console.log('==========================================\n');
+            
+            console.log('🔗 Online Documentation:');
+            console.log('https://github.com/kwesinavilot/baseline-lens-cli/blob/main/docs/USER_GUIDE.md\n');
+            
+            console.log('📝 Local Documentation:');
+            console.log('The complete user guide is available in your installation at:');
+            console.log('node_modules/baseline-lens-cli/docs/USER_GUIDE.md\n');
+            
+            return;
+        }
+        
+        if (options.examples) {
+            console.log('💡 Common Usage Examples');
+            console.log('========================\n');
+            
+            console.log('🔍 Basic Analysis:');
+            console.log('baseline-lens-cli analyze');
+            console.log('baseline-lens-cli analyze --changed-only\n');
+            
+            console.log('⚙️  Smart Configuration:');
+            console.log('baseline-lens-cli init-config');
+            console.log('baseline-lens-cli init-config --preset react --env production\n');
+            
+            console.log('🔧 Git Hooks Setup:');
+            console.log('baseline-lens-cli init-hooks');
+            console.log('baseline-lens-cli init-hooks --type pre-push\n');
+            
+            console.log('🚀 CI/CD Integration:');
+            console.log('baseline-lens-cli init-ci --type github');
+            console.log('baseline-lens-cli init-ci --type gitlab --changed-only\n');
+            
+            console.log('🔍 Feature Research:');
+            console.log('baseline-lens-cli feature css-grid');
+            console.log('baseline-lens-cli list-features --type css --status newly_available\n');
+            
+            console.log('📚 For detailed documentation, run: baseline-lens-cli help --guide');
+            return;
+        }
+        
+        // Default help
+        console.log('🎆 Baseline Lens CLI - Web Feature Compatibility Analysis');
+        console.log('========================================================\n');
+        
+        console.log('🚀 Quick Start:');
+        console.log('  baseline-lens-cli analyze                    # Analyze current project');
+        console.log('  baseline-lens-cli init-config                # Generate smart config');
+        console.log('  baseline-lens-cli init-hooks                 # Set up git hooks');
+        console.log('  baseline-lens-cli init-ci --type github      # Set up CI/CD\n');
+        
+        console.log('📚 Documentation:');
+        console.log('  baseline-lens-cli help --guide               # Full user guide');
+        console.log('  baseline-lens-cli help --examples            # Common examples');
+        console.log('  baseline-lens-cli --help                     # Command reference\n');
+        
+        console.log('🔗 Online Resources:');
+        console.log('  User Guide: https://github.com/kwesinavilot/baseline-lens-cli/blob/main/docs/USER_GUIDE.md');
+        console.log('  Issues: https://github.com/kwesinavilot/baseline-lens-cli/issues');
+    });
+
 // List supported features command
 program
     .command('list-features')

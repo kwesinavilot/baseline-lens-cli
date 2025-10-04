@@ -1,6 +1,6 @@
 {
   "name": "baseline-lens-cli",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "CLI tool for web feature compatibility analysis using Baseline data",
   "keywords": [
     "web-compatibility",

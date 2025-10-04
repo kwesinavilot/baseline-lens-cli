@@ -49,25 +49,28 @@ export class ConfigManager {
         const baseConfig = new CLIConfig();
         const preset = this.getFrameworkPreset(projectInfo.framework);
         
-        // Merge base config with framework preset
-        const config = { ...baseConfig, ...preset };
+        // Apply preset values to base config
+        if (preset.supportThreshold) baseConfig.supportThreshold = preset.supportThreshold;
+        if (preset.includePatterns) baseConfig.includePatterns.push(...preset.includePatterns);
+        if (preset.excludePatterns) baseConfig.excludePatterns.push(...preset.excludePatterns);
+        if (preset.customBrowserMatrix) baseConfig.customBrowserMatrix = preset.customBrowserMatrix;
         
         // Adjust for TypeScript
         if (projectInfo.hasTypeScript) {
-            config.includePatterns.push('**/*.ts', '**/*.tsx');
+            baseConfig.includePatterns.push('**/*.ts', '**/*.tsx');
         }
         
         // Adjust for Sass
         if (projectInfo.hasSass) {
-            config.includePatterns.push('**/*.scss', '**/*.sass');
+            baseConfig.includePatterns.push('**/*.scss', '**/*.sass');
         }
         
         // Adjust for build tool
         if (projectInfo.buildTool) {
-            config.excludePatterns.push(...this.getBuildToolExcludes(projectInfo.buildTool));
+            baseConfig.excludePatterns.push(...this.getBuildToolExcludes(projectInfo.buildTool));
         }
         
-        return config;
+        return baseConfig;
     }
 
     /**

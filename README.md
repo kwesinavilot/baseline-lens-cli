@@ -58,6 +58,22 @@ baseline-lens-cli init-ci --type github --overwrite
 baseline-lens-cli init-ci --type azure --output custom-dir
 ```
 
+### Set Up Git Hooks
+
+```bash
+# Set up pre-commit hook (default)
+baseline-lens-cli init-hooks
+
+# Set up pre-push hook for broader checks
+baseline-lens-cli init-hooks --type pre-push
+
+# Custom threshold and failure level
+baseline-lens-cli init-hooks --fail-on medium --threshold 95
+
+# Remove existing hooks
+baseline-lens-cli init-hooks --remove
+```
+
 ### Validate Configuration
 
 ```bash
@@ -76,6 +92,19 @@ baseline-lens-cli show-config --format json
 ```bash
 baseline-lens-cli feature css-grid
 baseline-lens-cli list-features --type css --status newly_available
+```
+
+### Get Help
+
+```bash
+# Quick help and examples
+baseline-lens-cli help
+
+# Full user guide
+baseline-lens-cli help --guide
+
+# Common usage examples
+baseline-lens-cli help --examples
 ```
 
 ## Configuration
