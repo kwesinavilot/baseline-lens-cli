@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-01-03
+
+### Added
+- Conditional execution: `--changed-only` flag to analyze only files changed in current branch/PR
+- Git integration for detecting changed files in CI/CD environments
+- Support for both staged/unstaged changes (local) and branch comparisons (CI)
+- Automatic CI environment detection for optimal file change detection
+
 ## [0.5.0] - 2025-01-03
 
 ### Added
@@ -75,7 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - postcss ^8.4.0 for CSS parsing
 - acorn ^8.10.0 for JavaScript AST parsing
 
-[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/kwesinavilot/baseline-lens-cli/compare/v0.3.0...v0.4.0

@@ -27,6 +27,7 @@ npm install -g baseline-lens-cli
 baseline-lens-cli analyze --path ./src
 baseline-lens-cli analyze --path ./src --output report.json --format json
 baseline-lens-cli analyze --path ./src --threshold 95 --fail-on medium
+baseline-lens-cli analyze --changed-only --base-branch main
 ```
 
 ### Generate Smart Configuration

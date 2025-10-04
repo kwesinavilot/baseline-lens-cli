@@ -92,6 +92,8 @@ baseline-lens-cli analyze [options]
 - `--threshold <threshold>` - Support threshold percentage (default: 90)
 - `--include <patterns>` - File patterns to include (comma-separated)
 - `--exclude <patterns>` - File patterns to exclude (comma-separated)
+- `--changed-only` - Only analyze files changed in current branch/PR
+- `--base-branch <branch>` - Base branch for changed files comparison (default: main)
 - `--silent` - Suppress console output except errors
 - `--verbose` - Enable verbose logging
 
@@ -108,6 +110,12 @@ baseline-lens-cli analyze --format junit --output test-results.xml
 
 # Analyze specific file types only
 baseline-lens-cli analyze --include "**/*.css,**/*.js" --exclude "**/node_modules/**"
+
+# Analyze only changed files (great for CI/CD performance)
+baseline-lens-cli analyze --changed-only
+
+# Compare against specific base branch
+baseline-lens-cli analyze --changed-only --base-branch develop
 ```
 
 ### `init-ci` - CI/CD Configuration
@@ -124,6 +132,7 @@ baseline-lens-cli init-ci [options]
 - `-c, --config <config>` - Configuration file path
 - `--fail-on <level>` - Fail build on risk level (default: high)
 - `--threshold <threshold>` - Support threshold percentage (default: 90)
+- `--changed-only` - Add changed-files-only mode to CI/CD config
 - `--overwrite` - Overwrite existing CI/CD files instead of appending
 
 **Examples:**
@@ -136,6 +145,9 @@ baseline-lens-cli init-ci --type gitlab --overwrite
 
 # Custom output directory and settings
 baseline-lens-cli init-ci --type azure --output .azure --threshold 95
+
+# Generate CI config that only analyzes changed files
+baseline-lens-cli init-ci --type github --changed-only
 ```
 
 ### `validate-config` - Configuration Validation
@@ -412,6 +424,20 @@ baseline-lens-cli analyze
 #    • 1 limited availability
 ```
 
+### Conditional Execution (Performance Optimization)
+
+```bash
+# Analyze only files changed in current PR/branch
+baseline-lens-cli analyze --changed-only
+
+# Output:
+# 🔍 Analyzing 3 changed files...
+#   - src/components/Button.tsx
+#   - src/styles/main.css
+#   - src/utils/helpers.js
+# ✅ Analysis completed successfully
+```
+
 ### Custom Configuration
 
 ```bash
@@ -502,6 +528,9 @@ baseline-lens-cli analyze --verbose
 For large projects:
 
 ```bash
+# Use changed-only mode for faster analysis
+baseline-lens-cli analyze --changed-only
+
 # Limit file size
 baseline-lens-cli analyze --config custom-config.json
 

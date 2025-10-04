@@ -28,6 +28,8 @@ program
     .option('--threshold <threshold>', 'Support threshold percentage', '90')
     .option('--include <patterns>', 'File patterns to include (comma-separated)')
     .option('--exclude <patterns>', 'File patterns to exclude (comma-separated)')
+    .option('--changed-only', 'Only analyze files changed in current branch/PR')
+    .option('--base-branch <branch>', 'Base branch for changed files comparison', 'main')
     .option('--silent', 'Suppress console output except errors')
     .option('--verbose', 'Enable verbose logging')
     .action(async (options: any) => {
@@ -35,6 +37,31 @@ program
             const config = await CLIConfig.load(options.config, options);
             const analyzer = new CLIAnalyzer(config);
             const reporter = new CLIReporter(config);
+            
+            // Handle changed files only mode
+            if (options.changedOnly) {
+                const { GitUtils } = await import('./gitUtils');
+                const changedFiles = GitUtils.isCI() 
+                    ? GitUtils.getChangedFiles(options.baseBranch)
+                    : GitUtils.getUncommittedFiles();
+                    
+                if (changedFiles.length === 0) {
+                    if (!options.silent) {
+                        console.log('✅ No changed files to analyze');
+                    }
+                    return;
+                }
+                
+                if (!options.silent) {
+                    console.log(`🔍 Analyzing ${changedFiles.length} changed files...`);
+                    if (options.verbose) {
+                        changedFiles.forEach(file => console.log(`  - ${file}`));
+                    }
+                }
+                
+                // Override path to analyze only changed files
+                options.path = changedFiles;
+            }
 
             if (!options.silent) {
                 console.log('🔍 Starting Baseline Lens analysis...');
@@ -113,6 +140,7 @@ program
     .option('-c, --config <config>', 'Configuration file path')
     .option('--fail-on <level>', 'Fail build on risk level (high|medium|low)', 'high')
     .option('--threshold <threshold>', 'Support threshold percentage', '90')
+    .option('--changed-only', 'Add changed-files-only mode to CI/CD config')
     .option('--overwrite', 'Overwrite existing CI/CD files instead of appending')
     .action(async (options: any) => {
         try {
@@ -123,7 +151,8 @@ program
                 failOn: options.failOn,
                 threshold: options.threshold,
                 outputPath: options.output,
-                overwrite: options.overwrite
+                overwrite: options.overwrite,
+                changedOnly: options.changedOnly
             });
 
             const outputFile = generator.getConfigFileName(options.type, options.output);
